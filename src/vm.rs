@@ -5,8 +5,8 @@ use std::os::unix::io::{AsRawFd, FromRawFd};
 use libc;
 
 use linux::kvm_consts::*;
-use linux::kvm_structs::*;
-use slot::*;
+use linux::kvm_structs::{kvm_userspace_memory_region};
+use mem::{MemorySlot};
 use vcpu::*;
 
 pub struct VirtualMachine {
@@ -30,9 +30,14 @@ impl VirtualMachine {
         Ok(VirtualCPU::new(safe_handle))
     }
 
-    pub fn set_user_memory_region(&self) -> Result<bool, Error> {
-        let slot = Slot::new(0x20000000)?;
-        let region = slot.as_kvm_memory_region();
+    pub fn set_user_memory_region(&self, slot: &MemorySlot) -> Result<bool, Error> {
+        let region = kvm_userspace_memory_region {
+            slot: slot.slot_id(),
+            flags: slot.flags(),
+            guest_phys_addr: slot.guest_address(),
+            memory_size: slot.memory_size() as u64,
+            userspace_addr: slot.host_address(),
+        };
 
         let result = unsafe { libc::ioctl(self.ioctl.as_raw_fd(), KVM_SET_USER_MEMORY_REGION, &region as *const kvm_userspace_memory_region as *const c_void) };
         if result == 0 {
