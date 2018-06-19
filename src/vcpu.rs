@@ -23,7 +23,7 @@ impl VirtualCPU {
 
 /// Creates a new `VirtualCPU` from an existing filehandle for
 /// virtual CPU operations.
-    pub fn new(handle: File) -> Self {
+    pub fn from_file(handle: File) -> Self {
         VirtualCPU { ioctl: handle }
     }
 

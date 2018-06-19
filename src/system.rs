@@ -140,7 +140,7 @@ impl KVMSystem {
 
         // Return value is safe because raw file descriptor result is checked
         // and ownership of File struct is consumed by VirtualMachine struct.
-        Ok(VirtualMachine::new(safe_handle))
+        Ok(VirtualMachine::from_file(safe_handle))
     }
 }
 

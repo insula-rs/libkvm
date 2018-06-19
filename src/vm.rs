@@ -25,7 +25,7 @@ impl VirtualMachine {
 
 /// Creates a new `VirtualMachine` from an existing filehandle for
 /// virtual machine operations.
-    pub fn new(handle: File) -> Self {
+    pub fn from_file(handle: File) -> Self {
         VirtualMachine { ioctl: handle }
     }
 
@@ -50,7 +50,7 @@ impl VirtualMachine {
 
         // Return value is safe because raw file descriptor result is checked
         // and ownership of File struct is consumed by VirtualCPU struct.
-        Ok(VirtualCPU::new(safe_handle))
+        Ok(VirtualCPU::from_file(safe_handle))
     }
 
 /// Register an allocated memory slot as guest memory. The allocated
