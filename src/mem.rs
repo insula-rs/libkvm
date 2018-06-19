@@ -27,4 +27,3 @@ pub trait MemorySlot {
     /// Returns the address of the start of the memory slot in the host, as an integer value.
     fn host_address(&self) -> u64;
 }
-

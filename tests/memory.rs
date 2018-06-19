@@ -1,6 +1,6 @@
 extern crate libkvm;
 
-use libkvm::mem::{MemorySlot};
+use libkvm::mem::MemorySlot;
 
 pub struct MockSlot {
     size: usize,
@@ -13,11 +13,21 @@ impl MockSlot {
 }
 
 impl MemorySlot for MockSlot {
-    fn slot_id(&self) -> u32 { 11 }
-    fn flags(&self) -> u32 { 22 }
-    fn memory_size(&self) -> usize { self.size }
-    fn guest_address(&self) -> u64 { 33 }
-    fn host_address(&self) -> u64 { 44 }
+    fn slot_id(&self) -> u32 {
+        11
+    }
+    fn flags(&self) -> u32 {
+        22
+    }
+    fn memory_size(&self) -> usize {
+        self.size
+    }
+    fn guest_address(&self) -> u64 {
+        33
+    }
+    fn host_address(&self) -> u64 {
+        44
+    }
 }
 
 #[test]

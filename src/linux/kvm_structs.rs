@@ -10,11 +10,11 @@
 /// for KVM_SET_USER_MEMORY_REGION
 #[repr(C)]
 pub struct kvm_userspace_memory_region {
-        pub slot: u32,
-        pub flags: u32,
-        pub guest_phys_addr: u64,
-        pub memory_size: u64, /* bytes */
-        pub userspace_addr: u64, /* start of the userspace allocated memory */
+    pub slot: u32,
+    pub flags: u32,
+    pub guest_phys_addr: u64,
+    pub memory_size: u64,    /* bytes */
+    pub userspace_addr: u64, /* start of the userspace allocated memory */
 }
 
 /// for KVM_GET_SREGS and KVM_SET_SREGS (arch: x86)
@@ -65,4 +65,3 @@ pub struct kvm_dtable {
     limit: u16,
     padding: [u16; 3usize],
 }
-
