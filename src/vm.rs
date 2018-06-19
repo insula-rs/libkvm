@@ -1,3 +1,9 @@
+// Copyright (C) 2018, Allison Randal
+//
+// Licensed under LGPL version 2 or any later version.
+
+//! KVM virtual machine operations.
+
 use std::fs::File;
 use std::io::Error;
 use std::os::raw::c_void;
@@ -9,14 +15,31 @@ use linux::kvm_structs::{kvm_userspace_memory_region};
 use mem::{MemorySlot};
 use vcpu::*;
 
+/// The VirtualMachine module handles KVM virtual machine operations.
+/// It owns the filehandle for these operations.
 pub struct VirtualMachine {
     ioctl: File,
 }
 
 impl VirtualMachine {
+
+/// Creates a new `VirtualMachine` from an existing filehandle for
+/// virtual machine operations.
     pub fn new(handle: File) -> Self {
         VirtualMachine { ioctl: handle }
     }
+
+/// Opens a filehandle for virtual CPU operations, and returns a
+/// `Result`. If the open operation fails, the `Result` unwraps as an
+/// `Error`. If it succeeds, the `Result` unwraps as an instance of
+/// `VCPU` for performing virtual CPU operations.
+///
+///     # use libkvm::system::*;
+///     # use libkvm::vm::*;
+///     # use libkvm::vcpu::*;
+///     # let system = KVMSystem::new().expect("failed to connect to KVM");
+///     # let vm = system.create_vm().expect("failed to create VM");
+///     let vcpu = vm.create_vcpu().expect("failed to create VCPU");
 
     pub fn create_vcpu(&self) -> Result<VirtualCPU, Error> {
         let raw_fd = unsafe { libc::ioctl(self.ioctl.as_raw_fd(), KVM_CREATE_VCPU, 0) };
@@ -29,6 +52,15 @@ impl VirtualMachine {
         // and ownership of File struct is consumed by VirtualCPU struct.
         Ok(VirtualCPU::new(safe_handle))
     }
+
+/// Register an allocated memory slot as guest memory. The allocated
+/// memory is passed in the `slot` argument, which can be any
+/// instance that implements the `MemorySlot` trait.
+///
+/// ```ignore
+/// let slot = CustomMemorySlot::new();
+/// let result = vm.set_user_memory_region(&slot);
+/// ```
 
     pub fn set_user_memory_region(&self, slot: &MemorySlot) -> Result<bool, Error> {
         let region = kvm_userspace_memory_region {

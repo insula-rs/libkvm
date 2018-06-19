@@ -1,3 +1,12 @@
+// Copyright (C) 2018, Allison Randal
+//
+// Licensed under LGPL version 2 or any later version.
+
+//! Constants for KVM ioctl operations.
+//!
+//! This is a minimal subset of the constants defined in the C header
+//! file `linux/kvm.h`.
+
 use std::mem::{size_of};
 
 use linux::ioctl::*;

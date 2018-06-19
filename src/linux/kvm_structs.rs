@@ -1,4 +1,13 @@
-/* for KVM_SET_USER_MEMORY_REGION */
+// Copyright (C) 2018, Allison Randal
+//
+// Licensed under LGPL version 2 or any later version.
+
+//! Structs for KVM ioctl operations.
+//!
+//! This is a minimal subset of the structs defined in the C header
+//! file `linux/kvm.h`.
+
+/// for KVM_SET_USER_MEMORY_REGION
 #[repr(C)]
 pub struct kvm_userspace_memory_region {
         pub slot: u32,
@@ -8,7 +17,7 @@ pub struct kvm_userspace_memory_region {
         pub userspace_addr: u64, /* start of the userspace allocated memory */
 }
 
-/* for KVM_GET_SREGS and KVM_SET_SREGS (arch: x86) */
+/// for KVM_GET_SREGS and KVM_SET_SREGS (arch: x86)
 #[repr(C)]
 pub struct kvm_sregs {
     cs: kvm_segment,
@@ -31,6 +40,7 @@ pub struct kvm_sregs {
     interrupt_bitmap: [u64; 4usize],
 }
 
+/// used within kvm_sregs
 #[repr(C)]
 pub struct kvm_segment {
     base: u64,
@@ -48,6 +58,7 @@ pub struct kvm_segment {
     padding: u8,
 }
 
+/// used within kvm_sregs
 #[repr(C)]
 pub struct kvm_dtable {
     base: u64,
