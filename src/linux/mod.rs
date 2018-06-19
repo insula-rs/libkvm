@@ -7,7 +7,5 @@
 //! These are defined in Rust, but mimic the C constants and structs
 //! defined in `ioctl.h` and `linux/kvm.h`.
 
-#[macro_use]
-pub mod ioctl;
 pub mod kvm_consts;
 pub mod kvm_structs;
