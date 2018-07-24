@@ -51,6 +51,7 @@ pub const KVM_SET_USER_MEMORY_REGION: u64 = define_ioctl_op!(
     0x46,
     size_of::<kvm_userspace_memory_region>() as u32
 );
+pub const KVM_SET_TSS_ADDR: u64 = define_ioctl_op!(_IOC_NONE, 0x47, 0);
 pub const KVM_RUN: u64 = define_ioctl_op!(_IOC_NONE, 0x80, 0);
 
 // Extension capability list.
@@ -58,7 +59,7 @@ pub const KVM_CAP_IRQCHIP: u64 = 0;
 //const KVM_CAP_HLT:u64 = 1;
 //const KVM_CAP_MMU_SHADOW_CACHE_CONTROL:u64 = 2;
 pub const KVM_CAP_USER_MEMORY: u64 = 3;
-//const KVM_CAP_SET_TSS_ADDR:u64 = 4;
+pub const KVM_CAP_SET_TSS_ADDR: u64 = 4;
 //const KVM_CAP_VAPIC:u64 = 6;
 //const KVM_CAP_EXT_CPUID:u64 = 7;
 //const KVM_CAP_CLOCKSOURCE:u64 = 8;

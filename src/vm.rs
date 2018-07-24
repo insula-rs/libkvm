@@ -83,4 +83,13 @@ impl VirtualMachine {
             return Err(Error::last_os_error());
         }
     }
+
+    pub fn set_tss_address(&self, tss_address: u32) -> Result<(), Error> {
+        let result = unsafe { libc::ioctl(self.ioctl.as_raw_fd(), KVM_SET_TSS_ADDR, tss_address) };
+        if result == 0 {
+            return Ok(());
+        } else {
+            return Err(Error::last_os_error());
+        }
+    }
 }

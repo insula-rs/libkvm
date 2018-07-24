@@ -20,8 +20,10 @@ use std::io::Error;
 use std::os::raw::c_char;
 use std::os::unix::io::{AsRawFd, FromRawFd};
 
-use linux::kvm_consts::{KVM_CAP_IRQCHIP, KVM_CAP_USER_MEMORY, KVM_CHECK_EXTENSION, KVM_CREATE_VM,
-                        KVM_GET_API_VERSION, KVM_GET_VCPU_MMAP_SIZE};
+use linux::kvm_consts::{
+    KVM_CAP_IRQCHIP, KVM_CAP_SET_TSS_ADDR, KVM_CAP_USER_MEMORY, KVM_CHECK_EXTENSION, KVM_CREATE_VM,
+    KVM_GET_API_VERSION, KVM_GET_VCPU_MMAP_SIZE,
+};
 use vm::*;
 
 /// The KVMSystem module handles KVM system operations. It creates and
@@ -102,6 +104,10 @@ impl KVMSystem {
 
     pub fn check_cap_user_memory(&self) -> Result<i32, Error> {
         self.check_extension(KVM_CAP_USER_MEMORY)
+    }
+
+    pub fn check_cap_set_tss_address(&self) -> Result<i32, Error> {
+        self.check_extension(KVM_CAP_SET_TSS_ADDR)
     }
 
     /// Fetch the size of the shared memory region that KVM uses to
