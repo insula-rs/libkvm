@@ -11,7 +11,7 @@ use std::fs::File;
 use std::io::Error;
 use std::os::unix::io::AsRawFd;
 
-use linux::kvm_consts::KVM_RUN;
+use linux::kvm_ioctl::KVM_RUN;
 
 /// The VirtualCPU module handles KVM virtual CPU operations.
 /// It owns the filehandle for these operations.

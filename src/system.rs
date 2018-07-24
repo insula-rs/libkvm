@@ -20,9 +20,10 @@ use std::io::Error;
 use std::os::raw::c_char;
 use std::os::unix::io::{AsRawFd, FromRawFd};
 
-use linux::kvm_consts::{
-    KVM_CAP_IRQCHIP, KVM_CAP_SET_TSS_ADDR, KVM_CAP_USER_MEMORY, KVM_CHECK_EXTENSION, KVM_CREATE_VM,
-    KVM_GET_API_VERSION, KVM_GET_VCPU_MMAP_SIZE,
+use linux::kvm_bindings::{KVM_CAP_IRQCHIP, KVM_CAP_SET_TSS_ADDR, KVM_CAP_USER_MEMORY};
+
+use linux::kvm_ioctl::{
+    KVM_CHECK_EXTENSION, KVM_CREATE_VM, KVM_GET_API_VERSION, KVM_GET_VCPU_MMAP_SIZE,
 };
 use vm::*;
 
@@ -75,7 +76,7 @@ impl KVMSystem {
         }
     }
 
-    fn check_extension(&self, capability: u64) -> Result<i32, Error> {
+    fn check_extension(&self, capability: u32) -> Result<i32, Error> {
         let result = unsafe { ioctl(self.ioctl.as_raw_fd(), KVM_CHECK_EXTENSION, capability) };
         if result > -1 {
             return Ok(result);

@@ -10,8 +10,8 @@ use std::io::Error;
 use std::os::raw::c_void;
 use std::os::unix::io::{AsRawFd, FromRawFd};
 
-use linux::kvm_consts::*;
-use linux::kvm_structs::kvm_userspace_memory_region;
+use linux::kvm_bindings::*;
+use linux::kvm_ioctl::*;
 use mem::MemorySlot;
 use vcpu::*;
 
