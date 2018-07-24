@@ -30,7 +30,9 @@ const KVM_IOC_TYPE: u32 = KVMIO << _IOC_TYPESHIFT;
 // Macro for defining all KVM ioctl operation constants.
 macro_rules! define_ioctl_op {
     ($direction:expr, $ioctl_number:expr, $ioctl_size:expr) => {
-        (($direction << _IOC_DIRSHIFT) | KVM_IOC_TYPE | $ioctl_number
+        (($direction << _IOC_DIRSHIFT)
+            | KVM_IOC_TYPE
+            | $ioctl_number
             | ($ioctl_size << _IOC_SIZESHIFT)) as u64
     };
 }
