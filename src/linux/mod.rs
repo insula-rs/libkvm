@@ -17,4 +17,3 @@ pub mod kvm_ioctl;
 pub mod x86_kvm_bindings;
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 pub use self::x86_kvm_bindings as kvm_bindings;
-

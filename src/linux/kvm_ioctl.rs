@@ -35,3 +35,7 @@ pub const KVM_SET_USER_MEMORY_REGION: u64 = define_ioctl_op!(
 );
 pub const KVM_SET_TSS_ADDR: u64 = define_ioctl_op!(_IOC_NONE, 0x47, 0);
 pub const KVM_RUN: u64 = define_ioctl_op!(_IOC_NONE, 0x80, 0);
+pub const KVM_GET_REGS: u64 = define_ioctl_op!(_IOC_READ, 0x81, size_of::<kvm_regs>() as u32);
+pub const KVM_SET_REGS: u64 = define_ioctl_op!(_IOC_WRITE, 0x82, size_of::<kvm_regs>() as u32);
+pub const KVM_GET_SREGS: u64 = define_ioctl_op!(_IOC_READ, 0x83, size_of::<kvm_sregs>() as u32);
+pub const KVM_SET_SREGS: u64 = define_ioctl_op!(_IOC_WRITE, 0x84, size_of::<kvm_sregs>() as u32);

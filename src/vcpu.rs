@@ -12,8 +12,8 @@ use std::fs::File;
 use std::io::Error;
 use std::os::unix::io::AsRawFd;
 
-use linux::kvm_bindings::kvm_run;
-use linux::kvm_ioctl::KVM_RUN;
+use linux::kvm_bindings::{kvm_regs, kvm_run, kvm_sregs};
+use linux::kvm_ioctl::{KVM_GET_REGS, KVM_GET_SREGS, KVM_RUN, KVM_SET_REGS, KVM_SET_SREGS};
 use system::KVMSystem;
 
 /// The VirtualCPU module handles KVM virtual CPU operations.
@@ -73,6 +73,44 @@ impl VirtualCPU {
         let result = unsafe { ioctl(self.ioctl.as_raw_fd(), KVM_RUN, 0) };
         if result == 0 {
             return Ok(true);
+        } else {
+            return Err(Error::last_os_error());
+        }
+    }
+
+    pub fn get_kvm_regs(&self) -> Result<kvm_regs, Error> {
+        let mut regs: kvm_regs = unsafe { std::mem::zeroed() };
+        let result = unsafe { libc::ioctl(self.ioctl.as_raw_fd(), KVM_GET_REGS, &mut regs) };
+        if result == 0 {
+            return Ok(regs);
+        } else {
+            return Err(Error::last_os_error());
+        }
+    }
+
+    pub fn set_kvm_regs(&self, regs: &kvm_regs) -> Result<(), Error> {
+        let result = unsafe { libc::ioctl(self.ioctl.as_raw_fd(), KVM_SET_REGS, regs) };
+        if result == 0 {
+            return Ok(());
+        } else {
+            return Err(Error::last_os_error());
+        }
+    }
+
+    pub fn get_kvm_sregs(&self) -> Result<kvm_sregs, Error> {
+        let mut sregs: kvm_sregs = unsafe { std::mem::zeroed() };
+        let result = unsafe { libc::ioctl(self.ioctl.as_raw_fd(), KVM_GET_SREGS, &mut sregs) };
+        if result == 0 {
+            return Ok(sregs);
+        } else {
+            return Err(Error::last_os_error());
+        }
+    }
+
+    pub fn set_kvm_sregs(&self, sregs: &kvm_sregs) -> Result<(), Error> {
+        let result = unsafe { libc::ioctl(self.ioctl.as_raw_fd(), KVM_SET_SREGS, sregs) };
+        if result == 0 {
+            return Ok(());
         } else {
             return Err(Error::last_os_error());
         }
