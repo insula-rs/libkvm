@@ -49,7 +49,8 @@ impl VirtualMachine {
 
         // Return value is safe because raw file descriptor result is checked
         // and ownership of File struct is consumed by VirtualCPU struct.
-        Ok(VirtualCPU::from_file(safe_handle))
+        let vcpu = VirtualCPU::from_file(safe_handle)?;
+        Ok(vcpu)
     }
 
     /// Register an allocated memory slot as guest memory. The allocated
