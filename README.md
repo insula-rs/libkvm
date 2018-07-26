@@ -54,10 +54,26 @@ $ sudo chmod g+rw /dev/kvm
 $ sudo adduser <username> kvm
 ```
 
+## Example
+
+1. Build the payload, this is a basic guest workloads used to showcase the
+features provided by libkvm:
+```
+pushd examples/payload
+make
+popd
+```
+
+2. Run the example:
+```
+cargo run --example demo
+```
 
 ## Copyright
 
 Copyright (C) Allison Randal, 2018
+
+Copyright (C) Cloudbase Solutions Srl, 2018
 
 This library is free software; you can redistribute it and/or modify
 it under the terms of the GNU Library/Lesser General Public License as
