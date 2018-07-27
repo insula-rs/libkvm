@@ -12,8 +12,10 @@ use std::fs::File;
 use std::io::Error;
 use std::os::unix::io::AsRawFd;
 
-use linux::kvm_bindings::{kvm_regs, kvm_run, kvm_sregs};
-use linux::kvm_ioctl::{KVM_GET_REGS, KVM_GET_SREGS, KVM_RUN, KVM_SET_REGS, KVM_SET_SREGS};
+use linux::kvm_bindings::{kvm_cpuid2, kvm_cpuid_entry2, kvm_regs, kvm_run, kvm_sregs};
+use linux::kvm_ioctl::{
+    KVM_SET_CPUID2, KVM_GET_REGS, KVM_GET_SREGS, KVM_RUN, KVM_SET_REGS, KVM_SET_SREGS,
+};
 use system::KVMSystem;
 
 /// The VirtualCPU module handles KVM virtual CPU operations.
@@ -109,6 +111,23 @@ impl VirtualCPU {
 
     pub fn set_kvm_sregs(&self, sregs: &kvm_sregs) -> Result<(), Error> {
         let result = unsafe { libc::ioctl(self.ioctl.as_raw_fd(), KVM_SET_SREGS, sregs) };
+        if result == 0 {
+            return Ok(());
+        } else {
+            return Err(Error::last_os_error());
+        }
+    }
+
+    pub fn set_cpuid(&self, cpuid_entries: &[kvm_cpuid_entry2]) -> Result<(), Error> {
+        let size = std::mem::size_of::<kvm_cpuid2>()
+            + std::mem::size_of::<kvm_cpuid_entry2>() * cpuid_entries.len();
+        let buf: Vec<u8> = vec![0; size];
+        let kvm_cpuid: &mut kvm_cpuid2 = unsafe { &mut *(buf.as_ptr() as *mut kvm_cpuid2) };
+        kvm_cpuid.nent = cpuid_entries.len() as u32;
+        unsafe { kvm_cpuid.entries.as_mut_slice(cpuid_entries.len()) }
+            .clone_from_slice(cpuid_entries);
+
+        let result = unsafe { libc::ioctl(self.ioctl.as_raw_fd(), KVM_SET_CPUID2, kvm_cpuid) };
         if result == 0 {
             return Ok(());
         } else {
