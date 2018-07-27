@@ -12,9 +12,11 @@ use std::fs::File;
 use std::io::Error;
 use std::os::unix::io::AsRawFd;
 
-use linux::kvm_bindings::{kvm_cpuid2, kvm_cpuid_entry2, kvm_regs, kvm_run, kvm_sregs};
+use linux::kvm_bindings::{
+    kvm_cpuid2, kvm_cpuid_entry2, kvm_msr_entry, kvm_msrs, kvm_regs, kvm_run, kvm_sregs,
+};
 use linux::kvm_ioctl::{
-    KVM_SET_CPUID2, KVM_GET_REGS, KVM_GET_SREGS, KVM_RUN, KVM_SET_REGS, KVM_SET_SREGS,
+    KVM_SET_CPUID2, KVM_GET_REGS, KVM_GET_SREGS, KVM_RUN, KVM_SET_MSRS, KVM_SET_REGS, KVM_SET_SREGS,
 };
 use system::KVMSystem;
 
@@ -129,6 +131,23 @@ impl VirtualCPU {
 
         let result = unsafe { libc::ioctl(self.ioctl.as_raw_fd(), KVM_SET_CPUID2, kvm_cpuid) };
         if result == 0 {
+            return Ok(());
+        } else {
+            return Err(Error::last_os_error());
+        }
+    }
+
+    pub fn set_msrs(&self, msr_entries: &[kvm_msr_entry]) -> Result<(), Error> {
+        let size = std::mem::size_of::<kvm_msrs>()
+            + std::mem::size_of::<kvm_msr_entry>() * msr_entries.len();
+        let buf: Vec<u8> = vec![0; size];
+        let kvm_msrs: &mut kvm_msrs = unsafe { &mut *(buf.as_ptr() as *mut kvm_msrs) };
+        kvm_msrs.nmsrs = msr_entries.len() as u32;
+        unsafe { kvm_msrs.entries.as_mut_slice(msr_entries.len()) }.clone_from_slice(msr_entries);
+
+        let result = unsafe { libc::ioctl(self.ioctl.as_raw_fd(), KVM_SET_MSRS, kvm_msrs) };
+        // Returns the number of msr entries written
+        if result >= 0 {
             return Ok(());
         } else {
             return Err(Error::last_os_error());
