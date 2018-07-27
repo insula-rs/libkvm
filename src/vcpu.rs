@@ -24,7 +24,7 @@ use system::KVMSystem;
 /// It owns the filehandle for these operations.
 pub struct VirtualCPU {
     ioctl: File,
-    kvm_run: *const kvm_run,
+    kvm_run: *mut kvm_run,
     vcpu_map_size: usize,
 }
 
@@ -43,7 +43,7 @@ impl VirtualCPU {
         })
     }
 
-    fn map_kvm_run(handle: &File, vcpu_map_size: usize) -> Result<*const kvm_run, Error> {
+    fn map_kvm_run(handle: &File, vcpu_map_size: usize) -> Result<*mut kvm_run, Error> {
         let address = unsafe {
             libc::mmap(
                 std::ptr::null_mut(),
@@ -58,12 +58,16 @@ impl VirtualCPU {
         if address == libc::MAP_FAILED {
             Err(Error::last_os_error())
         } else {
-            Ok(address as *const kvm_run)
+            Ok(address as *mut kvm_run)
         }
     }
 
     pub fn kvm_run(&self) -> &kvm_run {
         unsafe { &*self.kvm_run }
+    }
+
+    pub fn kvm_run_mut(&mut self) -> &mut kvm_run {
+        unsafe { &mut *self.kvm_run }
     }
 
     /// Runs the guest virtual CPU, and returns a `Result`. If the run
