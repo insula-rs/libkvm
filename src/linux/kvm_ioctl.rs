@@ -27,6 +27,8 @@ pub const KVM_GET_API_VERSION: u64 = define_ioctl_op!(_IOC_NONE, 0x00, 0);
 pub const KVM_CREATE_VM: u64 = define_ioctl_op!(_IOC_NONE, 0x01, 0);
 pub const KVM_CHECK_EXTENSION: u64 = define_ioctl_op!(_IOC_NONE, 0x03, 0);
 pub const KVM_GET_VCPU_MMAP_SIZE: u64 = define_ioctl_op!(_IOC_NONE, 0x04, 0); /* in bytes */
+pub const KVM_GET_SUPPORTED_CPUID: u64 =
+    define_ioctl_op!(_IOC_READ | _IOC_WRITE, 0x05, size_of::<kvm_cpuid2>() as u32);
 pub const KVM_CREATE_VCPU: u64 = define_ioctl_op!(_IOC_NONE, 0x41, 0);
 pub const KVM_SET_USER_MEMORY_REGION: u64 = define_ioctl_op!(
     _IOC_WRITE,
