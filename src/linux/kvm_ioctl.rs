@@ -52,4 +52,6 @@ pub const KVM_SET_REGS: u64 = define_ioctl_op!(_IOC_WRITE, 0x82, size_of::<kvm_r
 pub const KVM_GET_SREGS: u64 = define_ioctl_op!(_IOC_READ, 0x83, size_of::<kvm_sregs>() as u32);
 pub const KVM_SET_SREGS: u64 = define_ioctl_op!(_IOC_WRITE, 0x84, size_of::<kvm_sregs>() as u32);
 pub const KVM_SET_MSRS: u64 = define_ioctl_op!(_IOC_WRITE, 0x89, size_of::<kvm_msrs>() as u32);
+pub const KVM_GET_FPU: u64 = define_ioctl_op!(_IOC_READ, 0x8c, size_of::<kvm_fpu>() as u32);
+pub const KVM_SET_FPU: u64 = define_ioctl_op!(_IOC_WRITE, 0x8d, size_of::<kvm_fpu>() as u32);
 pub const KVM_SET_CPUID2: u64 = define_ioctl_op!(_IOC_WRITE, 0x90, size_of::<kvm_cpuid2>() as u32);

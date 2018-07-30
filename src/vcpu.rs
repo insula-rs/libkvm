@@ -13,10 +13,11 @@ use std::io::Error;
 use std::os::unix::io::AsRawFd;
 
 use linux::kvm_bindings::{
-    kvm_cpuid2, kvm_cpuid_entry2, kvm_msr_entry, kvm_msrs, kvm_regs, kvm_run, kvm_sregs,
+    kvm_cpuid2, kvm_cpuid_entry2, kvm_fpu, kvm_msr_entry, kvm_msrs, kvm_regs, kvm_run, kvm_sregs,
 };
 use linux::kvm_ioctl::{
-    KVM_SET_CPUID2, KVM_GET_REGS, KVM_GET_SREGS, KVM_RUN, KVM_SET_MSRS, KVM_SET_REGS, KVM_SET_SREGS,
+    KVM_SET_CPUID2, KVM_GET_FPU, KVM_GET_REGS, KVM_GET_SREGS, KVM_RUN, KVM_SET_FPU, KVM_SET_MSRS,
+    KVM_SET_REGS, KVM_SET_SREGS,
 };
 use system::KVMSystem;
 
@@ -117,6 +118,25 @@ impl VirtualCPU {
 
     pub fn set_kvm_sregs(&self, sregs: &kvm_sregs) -> Result<(), Error> {
         let result = unsafe { libc::ioctl(self.ioctl.as_raw_fd(), KVM_SET_SREGS, sregs) };
+        if result == 0 {
+            return Ok(());
+        } else {
+            return Err(Error::last_os_error());
+        }
+    }
+
+    pub fn get_fpu(&self) -> Result<kvm_fpu, Error> {
+        let mut fpu: kvm_fpu = unsafe { std::mem::zeroed() };
+        let result = unsafe { libc::ioctl(self.ioctl.as_raw_fd(), KVM_GET_FPU, &mut fpu) };
+        if result == 0 {
+            return Ok(fpu);
+        } else {
+            return Err(Error::last_os_error());
+        }
+    }
+
+    pub fn set_fpu(&self, fpu: &kvm_fpu) -> Result<(), Error> {
+        let result = unsafe { libc::ioctl(self.ioctl.as_raw_fd(), KVM_SET_FPU, fpu) };
         if result == 0 {
             return Ok(());
         } else {
