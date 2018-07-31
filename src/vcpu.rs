@@ -13,13 +13,14 @@ use std::io::Error;
 use std::os::unix::io::AsRawFd;
 
 use linux::kvm_bindings::{
-    kvm_cpuid2, kvm_cpuid_entry2, kvm_fpu, kvm_msr_entry, kvm_msrs, kvm_regs, kvm_run, kvm_sregs,
+    kvm_cpuid_entry2, kvm_fpu, kvm_msr_entry, kvm_msrs, kvm_regs, kvm_run, kvm_sregs,
 };
 use linux::kvm_ioctl::{
-    KVM_SET_CPUID2, KVM_GET_FPU, KVM_GET_REGS, KVM_GET_SREGS, KVM_RUN, KVM_SET_FPU, KVM_SET_MSRS,
-    KVM_SET_REGS, KVM_SET_SREGS,
+    KVM_GET_CPUID2, KVM_SET_CPUID2, KVM_GET_FPU, KVM_GET_REGS, KVM_GET_SREGS, KVM_RUN, KVM_SET_FPU,
+    KVM_SET_MSRS, KVM_SET_REGS, KVM_SET_SREGS,
 };
 use system::KVMSystem;
+use utils::KVMCpuid2Wrapper;
 
 /// The VirtualCPU module handles KVM virtual CPU operations.
 /// It owns the filehandle for these operations.
@@ -144,16 +145,28 @@ impl VirtualCPU {
         }
     }
 
-    pub fn set_cpuid(&self, cpuid_entries: &[kvm_cpuid_entry2]) -> Result<(), Error> {
-        let size = std::mem::size_of::<kvm_cpuid2>()
-            + std::mem::size_of::<kvm_cpuid_entry2>() * cpuid_entries.len();
-        let buf: Vec<u8> = vec![0; size];
-        let kvm_cpuid: &mut kvm_cpuid2 = unsafe { &mut *(buf.as_ptr() as *mut kvm_cpuid2) };
-        kvm_cpuid.nent = cpuid_entries.len() as u32;
-        unsafe { kvm_cpuid.entries.as_mut_slice(cpuid_entries.len()) }
-            .clone_from_slice(cpuid_entries);
+    pub fn get_cpuid(&self) -> Result<Vec<kvm_cpuid_entry2>, Error> {
+        const MAX_KVM_CPUID_ENTRIES: u32 = 256;
+        let mut kvm_cpuid = KVMCpuid2Wrapper::new(MAX_KVM_CPUID_ENTRIES);
 
-        let result = unsafe { libc::ioctl(self.ioctl.as_raw_fd(), KVM_SET_CPUID2, kvm_cpuid) };
+        let result = unsafe {
+            ioctl(
+                self.ioctl.as_raw_fd(),
+                KVM_GET_CPUID2,
+                kvm_cpuid.as_mut_ptr(),
+            )
+        };
+        if result == 0 {
+            return Ok(kvm_cpuid.to_entries_vec());
+        } else {
+            return Err(Error::last_os_error());
+        }
+    }
+
+    pub fn set_cpuid(&self, cpuid_entries: &[kvm_cpuid_entry2]) -> Result<(), Error> {
+        let kvm_cpuid = KVMCpuid2Wrapper::from_cpuid_entries(cpuid_entries);
+        let result =
+            unsafe { libc::ioctl(self.ioctl.as_raw_fd(), KVM_SET_CPUID2, kvm_cpuid.as_ptr()) };
         if result == 0 {
             return Ok(());
         } else {

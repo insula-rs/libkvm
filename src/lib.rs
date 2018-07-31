@@ -25,5 +25,6 @@ extern crate libc;
 pub mod linux;
 pub mod mem;
 pub mod system;
+mod utils;
 pub mod vcpu;
 pub mod vm;

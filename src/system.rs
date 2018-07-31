@@ -20,10 +20,10 @@ use std::fs::File;
 use std::io::Error;
 use std::os::raw::c_char;
 use std::os::unix::io::{AsRawFd, FromRawFd};
+use utils::KVMCpuid2Wrapper;
 
 use linux::kvm_bindings::{
-    kvm_cpuid2, kvm_cpuid_entry2, kvm_msr_list, KVM_CAP_IRQCHIP, KVM_CAP_SET_TSS_ADDR,
-    KVM_CAP_USER_MEMORY,
+    kvm_cpuid_entry2, kvm_msr_list, KVM_CAP_IRQCHIP, KVM_CAP_SET_TSS_ADDR, KVM_CAP_USER_MEMORY,
 };
 
 use linux::kvm_ioctl::{
@@ -109,23 +109,18 @@ impl KVMSystem {
     }
 
     pub fn get_supported_cpuid(&self) -> Result<Vec<kvm_cpuid_entry2>, Error> {
-        const MAX_KVM_CPUID_ENTRIES: usize = 256;
-
-        let size = std::mem::size_of::<kvm_cpuid2>()
-            + std::mem::size_of::<kvm_cpuid_entry2>() * MAX_KVM_CPUID_ENTRIES;
-        let mut buf: Vec<u8> = vec![0; size];
-        let kvm_cpuid: &mut kvm_cpuid2 = unsafe { &mut *(buf.as_ptr() as *mut kvm_cpuid2) };
-        kvm_cpuid.nent = MAX_KVM_CPUID_ENTRIES as u32;
+        const MAX_KVM_CPUID_ENTRIES: u32 = 256;
+        let mut kvm_cpuid = KVMCpuid2Wrapper::new(MAX_KVM_CPUID_ENTRIES);
 
         let result = unsafe {
             ioctl(
                 self.ioctl.as_raw_fd(),
                 KVM_GET_SUPPORTED_CPUID,
-                buf.as_mut_ptr(),
+                kvm_cpuid.as_mut_ptr(),
             )
         };
         if result == 0 {
-            return Ok(unsafe { kvm_cpuid.entries.as_slice(kvm_cpuid.nent as usize) }.to_vec());
+            return Ok(kvm_cpuid.to_entries_vec());
         } else {
             return Err(Error::last_os_error());
         }
