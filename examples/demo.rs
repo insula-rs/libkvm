@@ -139,7 +139,7 @@ fn setup_msrs(kvm: &KVMSystem, vcpu: &VirtualCPU) {
         .map(|i| kvm_msr_entry {
             index: *i,
             data: 0,
-            reserved: 0,
+            ..Default::default()
         })
         .collect::<Vec<_>>();
 
@@ -179,9 +179,7 @@ fn setup_long_mode(vcpu: &VirtualCPU, mem: &MmapMemorySlot) {
         s: 1,
         l: 1,
         g: 1,
-        avl: 0,
-        padding: 0,
-        unusable: 0,
+        ..Default::default()
     };
 
     sregs.cs = seg;

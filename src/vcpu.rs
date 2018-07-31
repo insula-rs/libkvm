@@ -88,7 +88,7 @@ impl VirtualCPU {
     }
 
     pub fn get_kvm_regs(&self) -> Result<kvm_regs, Error> {
-        let mut regs: kvm_regs = unsafe { std::mem::zeroed() };
+        let mut regs: kvm_regs = Default::default();
         let result = unsafe { libc::ioctl(self.ioctl.as_raw_fd(), KVM_GET_REGS, &mut regs) };
         if result == 0 {
             return Ok(regs);
@@ -107,7 +107,7 @@ impl VirtualCPU {
     }
 
     pub fn get_kvm_sregs(&self) -> Result<kvm_sregs, Error> {
-        let mut sregs: kvm_sregs = unsafe { std::mem::zeroed() };
+        let mut sregs: kvm_sregs = Default::default();
         let result = unsafe { libc::ioctl(self.ioctl.as_raw_fd(), KVM_GET_SREGS, &mut sregs) };
         if result == 0 {
             return Ok(sregs);
@@ -126,7 +126,7 @@ impl VirtualCPU {
     }
 
     pub fn get_fpu(&self) -> Result<kvm_fpu, Error> {
-        let mut fpu: kvm_fpu = unsafe { std::mem::zeroed() };
+        let mut fpu: kvm_fpu = Default::default();
         let result = unsafe { libc::ioctl(self.ioctl.as_raw_fd(), KVM_GET_FPU, &mut fpu) };
         if result == 0 {
             return Ok(fpu);
