@@ -15,15 +15,14 @@
 extern crate libc;
 
 use self::libc::{ioctl, open, O_CLOEXEC, O_RDWR};
-use std;
 use std::fs::File;
 use std::io::Error;
 use std::os::raw::c_char;
 use std::os::unix::io::{AsRawFd, FromRawFd};
-use utils::KVMCpuid2Wrapper;
+use utils::{KVMCpuid2Wrapper, KVMMSRListWrapper};
 
 use linux::kvm_bindings::{
-    kvm_cpuid_entry2, kvm_msr_list, KVM_CAP_IRQCHIP, KVM_CAP_SET_TSS_ADDR, KVM_CAP_USER_MEMORY,
+    kvm_cpuid_entry2, KVM_CAP_IRQCHIP, KVM_CAP_SET_TSS_ADDR, KVM_CAP_USER_MEMORY,
 };
 
 use linux::kvm_ioctl::{
@@ -90,19 +89,18 @@ impl KVMSystem {
     }
 
     fn get_msr_list(&self, ioctl_request: u64) -> Result<Vec<u32>, Error> {
-        const MAX_KVM_MSR_ENTRIES: usize = 256;
+        const MAX_KVM_MSR_INDICES: u32 = 256;
+        let mut kvm_msr_list = KVMMSRListWrapper::new(MAX_KVM_MSR_INDICES);
 
-        let size =
-            std::mem::size_of::<kvm_msr_list>() + std::mem::size_of::<u32>() * MAX_KVM_MSR_ENTRIES;
-        let mut buf: Vec<u8> = vec![0; size];
-        let kvm_msr_list: &mut kvm_msr_list = unsafe { &mut *(buf.as_ptr() as *mut kvm_msr_list) };
-        kvm_msr_list.nmsrs = MAX_KVM_MSR_ENTRIES as u32;
-
-        let result = unsafe { ioctl(self.ioctl.as_raw_fd(), ioctl_request, buf.as_mut_ptr()) };
+        let result = unsafe {
+            ioctl(
+                self.ioctl.as_raw_fd(),
+                ioctl_request,
+                kvm_msr_list.as_mut_ptr(),
+            )
+        };
         if result == 0 {
-            return Ok(
-                unsafe { kvm_msr_list.indices.as_slice(kvm_msr_list.nmsrs as usize) }.to_vec(),
-            );
+            return Ok(kvm_msr_list.to_indices_vec());
         } else {
             return Err(Error::last_os_error());
         }
