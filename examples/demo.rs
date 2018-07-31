@@ -33,6 +33,8 @@ const EFER_LME: u64 = 1 << 8;
 const EFER_LMA: u64 = 1 << 10;
 
 fn main() {
+    check_architecture();
+
     let kvm = KVMSystem::new().unwrap();
     let api = kvm.api_version().unwrap();
     println!("KVM API version: {}", api);
@@ -213,6 +215,13 @@ fn read_payload(mem: &mut MmapMemorySlot) {
         &p.to_str().unwrap()
     ));
     f.read(mem.as_slice_mut()).unwrap();
+}
+
+fn check_architecture() {
+    #[cfg(not(target_arch = "x86_64"))]
+    {
+        panic!("Unsupported architecture");
+    }
 }
 
 struct MmapMemorySlot {
