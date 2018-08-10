@@ -90,18 +90,25 @@ fn handle_io_port(kvm_run: &kvm_run) {
 }
 
 fn handle_mmio(kvm_run: &mut kvm_run) {
-    let mmio = unsafe { kvm_run.__bindgen_anon_1.mmio };
+    let mmio = unsafe { &mut kvm_run.__bindgen_anon_1.mmio };
+    let data = &mut mmio.data as *mut _ as *mut u64;
 
     if mmio.len == 8 {
         if mmio.is_write == 0 {
-            let data = &mmio.data as *const _ as *mut u64;
             unsafe {
                 *data = 0x1000;
-                println!("MMIO read: 0x{:x}", *data);
+                println!(
+                    "MMIO read address: 0x{:x}, data: 0x{:x}",
+                    mmio.phys_addr, *data
+                );
             }
         } else {
-            let value = unsafe { *(&mmio.data as *const _ as *const u64) };
-            println!("MMIO write: 0x{:x}", value);
+            unsafe {
+                println!(
+                    "MMIO write address: 0x{:x}, data: 0x{:x}",
+                    mmio.phys_addr, *data
+                );
+            }
         }
     }
 }
