@@ -103,4 +103,13 @@ impl VirtualMachine {
             return Err(Error::last_os_error());
         }
     }
+
+    pub fn create_irq_chip(&self) -> Result<(), Error> {
+        let result = unsafe { libc::ioctl(self.ioctl.as_raw_fd(), KVM_CREATE_IRQCHIP) };
+        if result == 0 {
+            return Ok(());
+        } else {
+            return Err(Error::last_os_error());
+        }
+    }
 }

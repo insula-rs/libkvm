@@ -46,6 +46,7 @@ pub const KVM_SET_USER_MEMORY_REGION: u64 = define_ioctl_op!(
     size_of::<kvm_userspace_memory_region>() as u32
 );
 pub const KVM_SET_TSS_ADDR: u64 = define_ioctl_op!(_IOC_NONE, 0x47, 0);
+pub const KVM_CREATE_IRQCHIP: u64 = define_ioctl_op!(_IOC_NONE, 0x60, 0);
 pub const KVM_CREATE_PIT2: u64 =
     define_ioctl_op!(_IOC_WRITE, 0x77, size_of::<kvm_pit_config>() as u32);
 pub const KVM_RUN: u64 = define_ioctl_op!(_IOC_NONE, 0x80, 0);
