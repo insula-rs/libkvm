@@ -93,4 +93,14 @@ impl VirtualMachine {
             return Err(Error::last_os_error());
         }
     }
+
+    pub fn create_pit2(&self) -> Result<(), Error> {
+        let pit_config = kvm_pit_config::default();
+        let result = unsafe { libc::ioctl(self.ioctl.as_raw_fd(), KVM_CREATE_PIT2, &pit_config) };
+        if result == 0 {
+            return Ok(());
+        } else {
+            return Err(Error::last_os_error());
+        }
+    }
 }
