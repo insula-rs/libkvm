@@ -39,6 +39,10 @@ pub const KVM_GET_MSR_FEATURE_INDEX_LIST: u64 = define_ioctl_op!(
     0x0a,
     size_of::<kvm_msr_list>() as u32
 );
+pub const KVM_GET_LAPIC: u64 =
+    define_ioctl_op!(_IOC_READ, 0x8e, size_of::<kvm_lapic_state>() as u32);
+pub const KVM_SET_LAPIC: u64 =
+    define_ioctl_op!(_IOC_WRITE, 0x8f, size_of::<kvm_lapic_state>() as u32);
 pub const KVM_CREATE_VCPU: u64 = define_ioctl_op!(_IOC_NONE, 0x41, 0);
 pub const KVM_SET_USER_MEMORY_REGION: u64 = define_ioctl_op!(
     _IOC_WRITE,

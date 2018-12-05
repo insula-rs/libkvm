@@ -12,10 +12,12 @@ use std::fs::File;
 use std::io::Error;
 use std::os::unix::io::AsRawFd;
 
-use linux::kvm_bindings::{kvm_cpuid_entry2, kvm_fpu, kvm_msr_entry, kvm_regs, kvm_run, kvm_sregs};
+use linux::kvm_bindings::{
+    kvm_cpuid_entry2, kvm_fpu, kvm_lapic_state, kvm_msr_entry, kvm_regs, kvm_run, kvm_sregs,
+};
 use linux::kvm_ioctl::{
-    KVM_GET_CPUID2, KVM_SET_CPUID2, KVM_GET_FPU, KVM_GET_MSRS, KVM_GET_REGS, KVM_GET_SREGS,
-    KVM_RUN, KVM_SET_FPU, KVM_SET_MSRS, KVM_SET_REGS, KVM_SET_SREGS,
+    KVM_GET_CPUID2, KVM_GET_FPU, KVM_GET_LAPIC, KVM_GET_MSRS, KVM_GET_REGS, KVM_GET_SREGS, KVM_RUN,
+    KVM_SET_CPUID2, KVM_SET_FPU, KVM_SET_LAPIC, KVM_SET_MSRS, KVM_SET_REGS, KVM_SET_SREGS,
 };
 use system::KVMSystem;
 use utils::{KVMCpuid2Wrapper, KVMMSRSWrapper};
@@ -189,6 +191,26 @@ impl VirtualCPU {
         let result =
             unsafe { libc::ioctl(self.ioctl.as_raw_fd(), KVM_SET_MSRS, kvm_msrs.as_ptr()) };
         // Returns the number of msr entries written
+        if result >= 0 {
+            return Ok(());
+        } else {
+            return Err(Error::last_os_error());
+        }
+    }
+
+    pub fn get_lapic(&self) -> Result<kvm_lapic_state, Error> {
+        let mut klapic: kvm_lapic_state = Default::default();
+
+        let result = unsafe { ioctl(self.ioctl.as_raw_fd(), KVM_GET_LAPIC, &mut klapic) };
+        if result >= 0 {
+            return Ok(klapic);
+        } else {
+            return Err(Error::last_os_error());
+        }
+    }
+
+    pub fn set_lapic(&self, klapic: &kvm_lapic_state) -> Result<(), Error> {
+        let result = unsafe { libc::ioctl(self.ioctl.as_raw_fd(), KVM_SET_LAPIC, klapic) };
         if result >= 0 {
             return Ok(());
         } else {
