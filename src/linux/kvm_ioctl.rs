@@ -34,6 +34,8 @@ pub const KVM_CHECK_EXTENSION: u64 = define_ioctl_op!(_IOC_NONE, 0x03, 0);
 pub const KVM_GET_VCPU_MMAP_SIZE: u64 = define_ioctl_op!(_IOC_NONE, 0x04, 0); /* in bytes */
 pub const KVM_GET_SUPPORTED_CPUID: u64 =
     define_ioctl_op!(_IOC_READ | _IOC_WRITE, 0x05, size_of::<kvm_cpuid2>() as u32);
+pub const KVM_GET_EMULATED_CPUID: u64 =
+    define_ioctl_op!(_IOC_READ | _IOC_WRITE, 0x09, size_of::<kvm_cpuid2>() as u32);
 pub const KVM_GET_MSR_FEATURE_INDEX_LIST: u64 = define_ioctl_op!(
     _IOC_READ | _IOC_WRITE,
     0x0a,

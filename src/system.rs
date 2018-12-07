@@ -26,8 +26,9 @@ use linux::kvm_bindings::{
 };
 
 use linux::kvm_ioctl::{
-    KVM_CHECK_EXTENSION, KVM_CREATE_VM, KVM_GET_API_VERSION, KVM_GET_MSR_FEATURE_INDEX_LIST,
-    KVM_GET_MSR_INDEX_LIST, KVM_GET_SUPPORTED_CPUID, KVM_GET_VCPU_MMAP_SIZE,
+    KVM_CHECK_EXTENSION, KVM_CREATE_VM, KVM_GET_API_VERSION, KVM_GET_EMULATED_CPUID,
+    KVM_GET_MSR_FEATURE_INDEX_LIST, KVM_GET_MSR_INDEX_LIST, KVM_GET_SUPPORTED_CPUID,
+    KVM_GET_VCPU_MMAP_SIZE,
 };
 use vm::*;
 
@@ -107,13 +108,21 @@ impl KVMSystem {
     }
 
     pub fn get_supported_cpuid(&self) -> Result<Vec<kvm_cpuid_entry2>, Error> {
+        self.get_cpuid_request(KVM_GET_SUPPORTED_CPUID)
+    }
+
+    pub fn get_emulated_cpuid(&self) -> Result<Vec<kvm_cpuid_entry2>, Error> {
+        self.get_cpuid_request(KVM_GET_EMULATED_CPUID)
+    }
+
+    fn get_cpuid_request(&self, ioctl_request: u64) -> Result<Vec<kvm_cpuid_entry2>, Error> {
         const MAX_KVM_CPUID_ENTRIES: u32 = 256;
         let mut kvm_cpuid = KVMCpuid2Wrapper::new(MAX_KVM_CPUID_ENTRIES);
 
         let result = unsafe {
             ioctl(
                 self.ioctl.as_raw_fd(),
-                KVM_GET_SUPPORTED_CPUID,
+                ioctl_request,
                 kvm_cpuid.as_mut_ptr(),
             )
         };
